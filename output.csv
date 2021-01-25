@@ -1,7 +1,4 @@
-0,1,2,3,4,5,6,7,8
-,PayDirect and Reimbursement Drugs Combined,,,,,,,
-,,,,,,Percentage of,,Percentage of
-,,,Drug,,Number,Total Number,Amount,Total Amount
+Rank,DIN,Drug Name,Drug Type,Drug Classification,Number of Claims,Percentage of Total Number of Claims,Amount Paid,Percentage of Total Amount Paid
 1,2434334,OTEZLA 30MG TAB,Single Source,Unclassified Therapeutic Agents,6,0.43%,"12,883.24",12.65%
 2,2296810,LUCENTIS 10MG/ML OPH INJECTION,Single Source,"Eye, Ear, Nose and Throat (EENT)",5,0.36%,"9,090.85",8.93%
 3,2372746,APO-MYCOPHENOLIC ACID 360MG EC,Generic,Unclassified Therapeutic Agents,4,0.29%,"7,139.54",7.01%
@@ -29,6 +26,7 @@
 25,2401975,TRICIRA LO (28 DAY) TABLET,Generic,Hormones and Synthetic Substitutes,10,0.71%,236.32,0.23%
 26,2390906,AURO-SERTRALINE 25MG CAPSULE,Generic,Central Nervous System Agents,26,1.86%,230.66,0.23%
 27,2405636,ROSUVASTATIN 10MG TABLET,Generic,Cardiovascular Drugs,13,0.93%,221.9,0.22%
+28,2326450,TEVA-SALBUTAMOL HFA 100MCG/DOS,Generic,Autonomic Drugs,20,1.43%,218.97,0.21%
 29,2286076,FLUOXETINE 20MG CAPSULE,Generic,Central Nervous System Agents,12,0.86%,206.28,0.20%
 30,2301083,SANDOZ PANTOPRAZOLE 40MG TABLE,Generic,Gastrointestinal Drugs,13,0.93%,187.7,0.18%
 31,2430118,ESCITALOPRAM 10MG TABLET,Generic,Central Nervous System Agents,10,0.71%,172.2,0.17%
