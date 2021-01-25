@@ -1,0 +1,36 @@
+"","","by Amount Paid","","","",""
+"PayDirect and Reimbursement Drugs Combined","","","","","",""
+"","","","","Percentage of","","Percentage of"
+"","Drug","","Number","Total Number","Amount","Total Amount"
+"Rank
+DIN
+Drug Name","Type","Drug Classification","of Claims","of Claims","Paid","Paid"
+"27
+02405636
+ROSUVASTATIN 10MG TABLET","Generic","Cardiovascular Drugs","13","0.93%","221.90","0.22%"
+"28
+02326450
+TEVA-SALBUTAMOL HFA 100MCG/DOS","Generic","Autonomic Drugs","20","1.43%","218.97","0.21%"
+"29
+02286076
+FLUOXETINE 20MG CAPSULE","Generic","Central Nervous System Agents","12","0.86%","206.28","0.20%"
+"30
+02301083
+SANDOZ PANTOPRAZOLE 40MG TABLE","Generic","Gastrointestinal Drugs","13","0.93%","187.70","0.18%"
+"31
+02430118
+ESCITALOPRAM 10MG TABLET","Generic","Central Nervous System Agents","10","0.71%","172.20","0.17%"
+"32
+02172062
+SYNTHROID 0.025MG TABLET","Single Source","Hormones and Synthetic Substitutes","11","0.79%","153.94","0.15%"
+"33
+00406716
+NOVAMOXIN 500MG CAPSULE","Generic","Anti-Infectives","11","0.79%","110.96","0.11%"
+"Canadian Dollars Total for DINs Ranked","","","402","28.69%","58,642.33","57.57%"
+"Canadian Dollars Total for Brand Name","","","27","1.93%","1,956.79","1.92%"
+"Canadian Dollars Total for Generic","","","236","16.85%","10,900.94","10.70%"
+"Canadian Dollars Total for Single Source","","","139","9.92%","45,784.60","44.95%"
+"Canadian Dollars Total for Unknown","","","0","0.00%","0.00","0.00%"
+"Canadian Dollars Total for Drug Expenses with No Associated DIN","","","2","0.14%","0.00","0.00%"
+"Canadian Dollars Total for DINs Not Ranked","","","997","71.16%","43,214.56","42.43%"
+"Canadian Dollars Total Claims","","","1,401","100.00%","101,856.89","100.00%"
