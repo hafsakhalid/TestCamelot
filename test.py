@@ -22,6 +22,7 @@ for j in range(3):
     #print(cols)
     df = df.reindex(columns=cols)
 
+
 #dropping values
 df = df.drop(df.index[[0]])
 
