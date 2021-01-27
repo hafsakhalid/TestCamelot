@@ -7,10 +7,17 @@ import camelot
 import logging
 import pandas as pd
 from openpyxl import load_workbook
+#import yaml
+import config
+
+#loading config file w yaml
+#config = yaml.safe_load(open(config.yml"))
 
 
+print(config.provider)
 
 logging.basicConfig(format='%(message)s', level=logging.INFO)
+
 #script  - just sureconnect (sys.argv[0])
 #configfile 
 #pdf = 2020.pdf
@@ -20,10 +27,16 @@ logging.basicConfig(format='%(message)s', level=logging.INFO)
 
 pdf = sys.argv[1]
 pagelist = sys.argv[2]
-template = sys.argv[3]
+#template = sys.argv[3]
 
-tables = camelot.read_pdf(pdf, pages=pagelist, flavor='stream')
-df = tables[0].df
+#this method can be in a different file (ask Alex)
+#page is pagelist, not starting page of config file
+def extracttable(): 
+    tables = camelot.read_pdf(pdf, pages=pagelist, flavor=config.extracts['flavour'])
+    df = tables[0].df
+    return df
+
+df = extracttable()
 
 #get standard columns for each df, 
 #string for 0 - num of columns
@@ -34,18 +47,17 @@ def standardcols(df):
         df.columns = cols
     return df
 
-
 df = standardcols(df)
 #then you define your schema: 
 schema = pa.DataFrameSchema({
     '0': pa.Column(str, checks=[
         # define custom checks as functions that take a series as input and
-        # outputs a boolean or boolean Series
-        pa.Check(lambda s: s.str.split("\n", expand=True).shape[1] < 2) ])
+        pa.Check(lambda s: s.str.split("\n", expand=True).shape[0] == 1)])
     
     })
 
 #conditions keeps track of which fix_up has been applied
+
 fix_up = dict()
 fix_up['SchemaErrors'] = rank_din_fix.rank_din_fix(df)
 
@@ -55,13 +67,13 @@ while(all(conditions)):
         schema.validate(df, lazy=True)
     except Exception as exception: 
         error_name = type(exception).__name__
-    if(not conditions[error_name]): 
+    if(not conditions['SchemaErrors']): 
         logging.info("Already tried fix up!")
         break
     else: 
         logging.info("Trying fix up")
         conditions['SchemaErrors'] = fix_up['SchemaErrors']
-        break
+        break #only here because no other fix ups in the list yet
 
 #updating the df
 df = conditions['SchemaErrors']
@@ -73,7 +85,6 @@ table = camelot.read_pdf('2020.pdf', pages='1', flavor='stream')
 df1 = table[0].df
 
 df1 = df1.drop([0, 1], axis=0)
-
 
 #make the columns the same as the scehma
 df.columns = df1.columns
@@ -87,6 +98,8 @@ cols = df1[:3].apply(fxn, axis=0)
 df2 = df1[3:].reset_index(drop=True)
 df2.columns = list(cols) # don't know if need "list"    
 
+print(df2)
+
 #Writing to a template
 #template should the argument but it does not accept spaces, so ask Alex
 template = load_workbook('Renewal Template Proof Zero.xlsm')
@@ -98,6 +111,8 @@ writer.sheets = {ws.title: ws for ws in template.worksheets}
 
 #df2.to_excel(writer, startrow = 1, index=False)
 writer.save()
+
+
 
 
 
