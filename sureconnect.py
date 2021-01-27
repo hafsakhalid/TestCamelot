@@ -102,14 +102,14 @@ print(df2)
 
 #Writing to a template
 #template should the argument but it does not accept spaces, so ask Alex
-template = load_workbook('Renewal Template Proof Zero.xlsm')
-writer = pd.ExcelWriter('Renewal Template Proof Zero.xlsm' , engine='openpyxl')
+template = load_workbook('Renewal Template Proof Zero.xlsm', read_only=False, keep_vba=True)
+writer = pd.ExcelWriter('Renewal Template Proof Zero.xlsm', engine='openpyxl')
 writer.book = template
 writer.sheets = {ws.title: ws for ws in template.worksheets}
 #for sheet in writer.sheets: 
     #print(sheet)
 
-#df2.to_excel(writer, startrow = 1, index=False)
+df2.to_excel(writer, sheet_name="Accounts", startrow = 1, index=False)
 writer.save()
 
 
