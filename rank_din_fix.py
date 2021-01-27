@@ -3,7 +3,6 @@ def rank_din_fix(df):
     df = df.drop(df.columns[0], axis=1)
     #can remove the headers in the csv
     df = df.dropna()
-    
     cols = df.columns.tolist() 
     #preappending the sepearted values
     for j in range(3):
@@ -13,12 +12,9 @@ def rank_din_fix(df):
         df = df.reindex(columns=cols)
 
     #dropping values    
-    
     df = df.drop(df.index[[0]])
     df = df.rename(columns={"Rank": "0"})
     
-    print(df)
-
     return df
 
 

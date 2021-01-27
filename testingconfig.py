@@ -24,11 +24,13 @@ schema = pa.DataFrameSchema({
 try:
     schema.validate(df, lazy=True)
 
-except pa.errors.SchemaErrors as err:
+except Exception as exception:
+    error_name = type(exception).__name__
+    print(error_name, "fuck")
     print("Schema errors and failure cases:")
-    print(err.failure_cases.head())
-    print("\nDataFrame object that failed validation:")
-    print(err.data.head())
+    # print(err.failure_cases.head())
+    # print("\nDataFrame object that failed validation:")
+    # print(err.data.head())
 
 finally:
     df = rank_din_fix.rank_din_fix(df)
