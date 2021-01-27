@@ -8,19 +8,20 @@ import logging
 import pandas as pd
 from openpyxl import load_workbook
 
-#log = logging.getLogger(__name__)
+
+
+logging.basicConfig(format='%(message)s', level=logging.INFO)
 #script  - just sureconnect (sys.argv[0])
 #configfile 
 #pdf = 2020.pdf
 #template = Renewal Template Proof Zero.xlsm
-
-#called with a pagelist, but the pagelist is just the table with the match so e.g 1, and then called again at 2 
-#pagelist = 1
+#pagelist = (will get as input from workflow)
 #pdf = '2020.pdf'
 
 pdf = sys.argv[1]
 pagelist = sys.argv[2]
 template = sys.argv[3]
+
 tables = camelot.read_pdf(pdf, pages=pagelist, flavor='stream')
 df = tables[0].df
 
@@ -55,11 +56,10 @@ while(all(conditions)):
     except Exception as exception: 
         error_name = type(exception).__name__
     if(not conditions[error_name]): 
-        logging.log("Already tried fix up!")
+        logging.info("Already tried fix up!")
         break
     else: 
-        #logging.log("Trying fix up")
-        print("Trying fix_up")
+        logging.info("Trying fix up")
         conditions['SchemaErrors'] = fix_up['SchemaErrors']
         break
 
@@ -73,6 +73,9 @@ table = camelot.read_pdf('2020.pdf', pages='1', flavor='stream')
 df1 = table[0].df
 
 df1 = df1.drop([0, 1], axis=0)
+
+
+#make the columns the same as the scehma
 df.columns = df1.columns
 df1 = df1.append(df, ignore_index=True)
 
@@ -93,7 +96,7 @@ writer.sheets = {ws.title: ws for ws in template.worksheets}
 #for sheet in writer.sheets: 
     #print(sheet)
 
-df2.to_excel(writer, startrow = 1, index=False)
+#df2.to_excel(writer, startrow = 1, index=False)
 writer.save()
 
 
