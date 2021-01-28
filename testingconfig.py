@@ -69,3 +69,86 @@ df2.to_excel(f, sheet_name='amount')
 
 
 
+
+
+
+
+# ideally all this will already be in a DataFrame because we called sureconnect on the first page before
+table = camelot.read_pdf("2020.pdf", pages="1", flavor="stream")
+df1 = table[0].df
+
+df1 = df1.drop([0, 1], axis=0)
+
+# make the columns the same as the scehma
+df.columns = df1.columns
+df1 = df1.append(df, ignore_index=True)
+
+
+def fxn(col):
+    return " ".join(col.to_string(index=False).split())
+
+
+cols = df1[:3].apply(fxn, axis=0)
+
+df2 = df1[3:].reset_index(drop=True)
+df2.columns = list(cols)  # don't know if need "list"
+
+print(df2)
+
+# Writing to a template
+# template should the argument but it does not accept a variable, so ask Alex
+template = load_workbook(
+    "Renewal Template Proof Zero.xlsm", read_only=False, keep_vba=True
+)
+writer = pd.ExcelWriter("Renewal Template Proof Zero.xlsm", engine="openpyxl")
+writer.book = template
+writer.sheets = {ws.title: ws for ws in template.worksheets}
+# for sheet in writer.sheets:
+# print(sheet)
+
+df2.to_excel(writer, sheet_name="Accounts", startrow=1, index=False)
+writer.save()
+
+
+# brute force the files into excel
+table = camelot.read_pdf(
+    "2020-ABC Client-Drug Report-Jul-Jun Proof Zero.pdf",
+    pages="1",
+    flavor="stream",
+)
+df3 = table[0].df
+template = load_workbook(
+    "Renewal Template Proof Zero.xlsm", read_only=False, keep_vba=True
+)
+writer = pd.ExcelWriter("Renewal Template Proof Zero.xlsm", engine="openpyxl")
+writer.book = template
+writer.sheets = {ws.title: ws for ws in template.worksheets}
+df3.to_excel(writer, sheet_name="2020-ABC", startrow=1, index=False)
+writer.save()
+
+table = camelot.read_pdf(
+    "Renewal Example Proof Zero Edited 12_14.pdf", pages="16", flavor="stream"
+)
+df4 = table[0].df
+template = load_workbook(
+    "Renewal Template Proof Zero.xlsm", read_only=False, keep_vba=True
+)
+writer = pd.ExcelWriter("Renewal Template Proof Zero.xlsm", engine="openpyxl")
+writer.book = template
+writer.sheets = {ws.title: ws for ws in template.worksheets}
+df4.to_excel(writer, sheet_name="By Claims", startrow=1, index=False)
+
+writer.save()
+
+
+# try it with 16 and 15 (comes out clean)
+
+if __name__ == "__main__":
+    import sys
+    import doctest
+
+    # Return the number of doctests that fail. This gives calling scripts
+    # a non-zero exit code if there are failing tests.
+    sys.exit(doctest.testmod(verbose=True)[0])
+
+sys.exit(0)
