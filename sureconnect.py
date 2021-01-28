@@ -11,7 +11,7 @@ import sys
 import pdb
 import doctest
 from sys import argv
-#importlogging
+#import logging
 
 from pandera.typing import Series
 import pandera as pa
@@ -215,8 +215,6 @@ def define_schema(tableList=tables):
 final_df = pd.DataFrame()
 for table in tables: 
     final_df = final_df.append(define_schema(table.df), ignore_index=True)
-
-
 
 # Writing to a template
 # template should the argument but it does not accept a variable, so ask Alex
