@@ -65,23 +65,26 @@ schema = pa.DataFrameSchema({
 fix_up = dict()
 fix_up['SchemaErrors'] = rank_din_fix.rank_din_fix
 
+#conditions all true for every fix_up
 conditions = {e : True for e in fix_up}
 while(all(conditions)): 
     try:
         schema.validate(df, lazy=True)
     except Exception as exception: 
+        error = pa.errors.SchemaErrors # the schema error names 
         error_name = type(exception).__name__ #errorheadname
     if(not conditions['SchemaErrors']): 
         logging.info("Already tried fix up!")
         break
     else: 
         logging.info("Trying fix up")
+        #once you try a fix up, you replace the True with calling the fix_up on df, which goes in not conditions
         conditions['SchemaErrors'] = fix_up['SchemaErrors'](df)
         break #only here because no other fix ups in the list yet 
 
 #updating the df
 df = conditions['SchemaErrors']
-#this is going to return the dataFrame after tryng all the fix_ups 
+#this is going to return the dataFrame after tryng all the fix_ups (right now only one fix up so)
 
 
 #ideally all this will already be in a DataFrame because we called sureconnect on the first page before
@@ -119,24 +122,24 @@ writer.save()
 
 
 #brute force the files into excel
-table = camelot.read_pdf('2020-ABC Client-Drug Report-Jul-Jun Proof Zero.pdf', pages='1', flavor='stream')
-df3 = table[0].df
-template = load_workbook('Renewal Template Proof Zero.xlsm', read_only=False, keep_vba=True)
-writer = pd.ExcelWriter('Renewal Template Proof Zero.xlsm', engine='openpyxl')
-writer.book = template
-writer.sheets = {ws.title: ws for ws in template.worksheets}
-df3.to_excel(writer, sheet_name="2020-ABC", startrow = 1, index=False)
-writer.save()
+# table = camelot.read_pdf('2020-ABC Client-Drug Report-Jul-Jun Proof Zero.pdf', pages='1', flavor='stream')
+# df3 = table[0].df
+# template = load_workbook('Renewal Template Proof Zero.xlsm', read_only=False, keep_vba=True)
+# writer = pd.ExcelWriter('Renewal Template Proof Zero.xlsm', engine='openpyxl')
+# writer.book = template
+# writer.sheets = {ws.title: ws for ws in template.worksheets}
+# df3.to_excel(writer, sheet_name="2020-ABC", startrow = 1, index=False)
+# writer.save()
 
-table = camelot.read_pdf('Renewal Example Proof Zero Edited 12_14.pdf', pages='16', flavor='stream')
-df4 = table[0].df
-template = load_workbook('Renewal Template Proof Zero.xlsm', read_only=False, keep_vba=True)
-writer = pd.ExcelWriter('Renewal Template Proof Zero.xlsm', engine='openpyxl')
-writer.book = template
-writer.sheets = {ws.title: ws for ws in template.worksheets}
-df4.to_excel(writer, sheet_name="By Claims", startrow = 1, index=False)
+# table = camelot.read_pdf('Renewal Example Proof Zero Edited 12_14.pdf', pages='16', flavor='stream')
+# df4 = table[0].df
+# template = load_workbook('Renewal Template Proof Zero.xlsm', read_only=False, keep_vba=True)
+# writer = pd.ExcelWriter('Renewal Template Proof Zero.xlsm', engine='openpyxl')
+# writer.book = template
+# writer.sheets = {ws.title: ws for ws in template.worksheets}
+# df4.to_excel(writer, sheet_name="By Claims", startrow = 1, index=False)
 
-writer.save()
+# writer.save()
 
 
 #try it with 16 and 15 (comes out clean)
