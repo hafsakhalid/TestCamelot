@@ -240,5 +240,3 @@ if __name__ == "__main__":
     # Return the number of doctests that fail. This gives calling scripts
     # a non-zero exit code if there are failing tests.
     sys.exit(doctest.testmod(verbose=True)[0])
-
-sys.exit(0)
