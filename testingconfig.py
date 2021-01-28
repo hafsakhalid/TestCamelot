@@ -4,7 +4,7 @@ import camelot
 import rank_din_fix
 import pandas as pd
 
-tables = camelot.read_pdf('2020.pdf', pages='2', flavor='stream')
+tables = camelot.read_pdf('Renewal Example Proof Zero Edited 12_14.pdf', pages='16', flavor='stream')
 df = tables[0].df
 cols = list(df.columns)
 for i in cols: 
@@ -24,13 +24,11 @@ schema = pa.DataFrameSchema({
 try:
     schema.validate(df, lazy=True)
 
-except Exception as exception:
-    error_name = type(exception).__name__
-    print(error_name, "fuck")
+except pa.errors.SchemaErrors as err:
     print("Schema errors and failure cases:")
-    # print(err.failure_cases.head())
-    # print("\nDataFrame object that failed validation:")
-    # print(err.data.head())
+    print(err.failure_cases.head())
+    print("\nDataFrame object that failed validation:")
+    print(err.data.head())
 
 finally:
     df = rank_din_fix.rank_din_fix(df)

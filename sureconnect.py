@@ -11,32 +11,37 @@ from openpyxl import load_workbook
 import config
 
 #loading config file w yaml
-#config = yaml.safe_load(open(config.yml"))
-
-
-print(config.provider)
+#config  = sys.argv[1]
+#config = yaml.safe_load(open("config.yml"))
 
 logging.basicConfig(format='%(message)s', level=logging.INFO)
 
 #script  - just sureconnect (sys.argv[0])
-#configfile 
 #pdf = 2020.pdf
 #template = Renewal Template Proof Zero.xlsm
 #pagelist = (will get as input from workflow)
 #pdf = '2020.pdf'
 
+
+#config = sys.argv[1]
+#pass the name of the yaml file
 pdf = sys.argv[1]
 pagelist = sys.argv[2]
-#template = sys.argv[3]
+
+print(config.string_match['title_name'])
 
 #this method can be in a different file (ask Alex)
 #page is pagelist, not starting page of config file
+
 def extracttable(): 
     tables = camelot.read_pdf(pdf, pages=pagelist, flavor=config.extracts['flavour'])
     df = tables[0].df
     return df
 
 df = extracttable()
+print(df)
+
+
 
 #get standard columns for each df, 
 #string for 0 - num of columns
@@ -55,25 +60,24 @@ schema = pa.DataFrameSchema({
         pa.Check(lambda s: s.str.split("\n", expand=True).shape[0] == 1)])
     
     })
-
 #conditions keeps track of which fix_up has been applied
 
 fix_up = dict()
-fix_up['SchemaErrors'] = rank_din_fix.rank_din_fix(df)
+fix_up['SchemaErrors'] = rank_din_fix.rank_din_fix
 
 conditions = {e : True for e in fix_up}
 while(all(conditions)): 
     try:
         schema.validate(df, lazy=True)
     except Exception as exception: 
-        error_name = type(exception).__name__
+        error_name = type(exception).__name__ #errorheadname
     if(not conditions['SchemaErrors']): 
         logging.info("Already tried fix up!")
         break
     else: 
         logging.info("Trying fix up")
-        conditions['SchemaErrors'] = fix_up['SchemaErrors']
-        break #only here because no other fix ups in the list yet
+        conditions['SchemaErrors'] = fix_up['SchemaErrors'](df)
+        break #only here because no other fix ups in the list yet 
 
 #updating the df
 df = conditions['SchemaErrors']
@@ -101,7 +105,7 @@ df2.columns = list(cols) # don't know if need "list"
 print(df2)
 
 #Writing to a template
-#template should the argument but it does not accept spaces, so ask Alex
+#template should the argument but it does not accept a variable, so ask Alex
 template = load_workbook('Renewal Template Proof Zero.xlsm', read_only=False, keep_vba=True)
 writer = pd.ExcelWriter('Renewal Template Proof Zero.xlsm', engine='openpyxl')
 writer.book = template
@@ -114,6 +118,28 @@ writer.save()
 
 
 
+#brute force the files into excel
+table = camelot.read_pdf('2020-ABC Client-Drug Report-Jul-Jun Proof Zero.pdf', pages='1', flavor='stream')
+df3 = table[0].df
+template = load_workbook('Renewal Template Proof Zero.xlsm', read_only=False, keep_vba=True)
+writer = pd.ExcelWriter('Renewal Template Proof Zero.xlsm', engine='openpyxl')
+writer.book = template
+writer.sheets = {ws.title: ws for ws in template.worksheets}
+df3.to_excel(writer, sheet_name="2020-ABC", startrow = 1, index=False)
+writer.save()
+
+table = camelot.read_pdf('Renewal Example Proof Zero Edited 12_14.pdf', pages='16', flavor='stream')
+df4 = table[0].df
+template = load_workbook('Renewal Template Proof Zero.xlsm', read_only=False, keep_vba=True)
+writer = pd.ExcelWriter('Renewal Template Proof Zero.xlsm', engine='openpyxl')
+writer.book = template
+writer.sheets = {ws.title: ws for ws in template.worksheets}
+df4.to_excel(writer, sheet_name="By Claims", startrow = 1, index=False)
+
+writer.save()
+
+
+#try it with 16 and 15 (comes out clean)
 
 
 

@@ -2,7 +2,7 @@ provider = ["Sun Life"]
 
 string_match = {
       
-#   'title_name': "by Number of Claims", 
+    'title_name': "by Number of Claims", 
     'start_page' : '2', #do we need start page? 
 #   'match_regex' : "/.*/"
   
@@ -10,7 +10,7 @@ string_match = {
   
 extracts =  {
     'flavour' : 'stream',
-    #'table_extractor': et.extracttable() # isn't this just camelot
+    #'table_extractor': et.extracttable() #isn't this just camelot
 }
   
 #schema = "somepythonfile"
