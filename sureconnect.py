@@ -52,22 +52,20 @@ for table in tables:
 
 # Then you define your schema for each pdf, this should take in a tableList 
 def define_schema(tableList=tables):
-    # """ Define a schema for each table in the PDF and see if it passes or fails 
+    """
+    Define a schema for each table in the PDF and see if it passes or fails 
    
-    # """
+    """
     schema = pa.DataFrameSchema({
         '0':pa.Column(
             pa.String, 
             checks = [
-                pa.Check(lambda s : s.str.contains('\n') == True)
-            ]),    
+                pa.Check(lambda s : s.str.contains('\n') == True, error="StringFailure")
+            ]),
         })
 
-    #define the condtions dicitonary as True
-    fix_up = dict()
-    fix_up['0'] = 10 #arbritary value for now
-    conditions = {e : True for e in fix_up}
-    
+    # Define the condtions dicitonary as True
+    conditions = {col.name : True for col in schema.columns}
     while(all(conditions)):
         try:
             schema.validate(tableList, lazy=True)
@@ -79,8 +77,8 @@ def define_schema(tableList=tables):
                 break
             else: 
                 print("Trying fix_up")
-                conditions[check_number] = fix_up[check_number]#(tableList)
-                break #ask Alex why this does not quit the while loop
+                conditions[check_number] = False
+                break
     
     return tableList
 
