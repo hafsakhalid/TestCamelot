@@ -1,0 +1,53 @@
+[{
+  provider: ["Sun Life"],
+  string_match: {
+      title_name: "by Number of Claims",
+      start_page: 1,
+      match_regex: "/.*/"
+  },
+  
+  extracts: {
+      flavour: ["lattice"],
+      table_extractor: "my_table_extraction_fxn" #isn't this just camelot
+  },
+  
+  schema: "some_pandas_schema.filename",
+  schema: {
+      obj: "text"
+  },
+  
+  fixups: {
+      TableShapeSchemaError: "my_dinrank_fixup.py"
+  },
+  template_map: {
+      src: "xyz", 
+      dst: "abc"
+  }
+
+  },
+  {
+  provider: ["Sun Life"],
+  string_match: {
+      title_name: "by Number of Claims",
+      start_page: 1,
+      match_regex: "/.*/"
+  },
+  
+  extracts: {
+      flavour: ["lattice"],
+      table_extractor: "my_table_extraction_fxn" #isn't this just camelot
+  },
+  
+  schema: "some_pandas_schema.filename",
+  schema: {
+      obj: "text"
+  },
+  
+  fixups: {
+      TableShapeSchemaError: "my_dinrank_fixup.py"
+  },
+  template_map: {
+      src: "xyz", 
+      dst: "abc"
+  }
+]
