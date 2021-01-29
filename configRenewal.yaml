@@ -1,0 +1,20 @@
+---
+provider: 
+- "SunLife"
+
+string_match: 
+    title_name: "Extended health care experience analysis"
+    start_page: "1"
+    match_regex: "/.*/"
+
+extracts: 
+    flavour: "stream"
+
+schema: #needs to be a dictionary
+
+fixups: 
+    TableShapeSchemaError: "no_fix_up"
+
+template_map: 
+    src: "Renewal Template Proof Zero.xlsm"
+    dst: "output.xlsm"

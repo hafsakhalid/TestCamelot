@@ -40,6 +40,7 @@ config  = sys.argv[1]
 config = yaml.safe_load(open(config_filename))
 
 
+
 # Get all of the tables in the PDF on the indicated page.
 tables = camelot.read_pdf( pdf_file, pages=page_number, flavor=config['extracts']['flavour'])
 
@@ -58,27 +59,30 @@ def define_schema(tableList=tables):
         '0':pa.Column(
             pa.String, 
             checks = [
-                pa.Check(lambda s : s.str.contains('\n') == True, error="StringFailure")
+                pa.Check(lambda s : s.str.contains('\n') == True, error="StringError")
             ]),
         })
 
     # Define the condtions dicitonary as True
-    conditions = {col.name : True for col in schema.columns}
+    fix_up = config['fixups']
+    conditions = {error : True for error in fix_up}
     while(all(conditions)):
         try:
             schema.validate(tableList, lazy=True)
         except pa.errors.SchemaErrors as errors:
-            check_number = str(errors.failure_cases['column'][0]) 
-            #this is the column number that fails the check, need this as a key, so change to str
-            if(not conditions[check_number]): 
+            error_name = str(errors.failure_cases['check'][0]) 
+            if(not conditions[error_name]): 
                 print("Already tried fix_up")
                 break
             else: 
                 print("Trying fix_up")
-                conditions[check_number] = False
-                break
+                conditions[error_name] = False
+                #fix_up[error_name].rank_din_fix((tableList))
+        
     
     return tableList
+
+
 
 # This applies the schema to all the tables in the tablelist, an outputs a dataFrame
 final_df = pd.DataFrame()
@@ -95,11 +99,8 @@ def output_template(df=final_df, template=template_file, engine="openpyxl", lib=
     )
     writer = pd.ExcelWriter("outfile.xlsm", engine=engine)
     writer.book = output
-    #writer.sheets = {ws.title: ws for ws in template.worksheets}
     final_df.to_excel(writer, sheet_name="Accounts", startrow=1, index=False)
     writer.save()
-
-output_template()
 
 if __name__ == "__main__":
     import sys

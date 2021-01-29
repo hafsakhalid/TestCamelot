@@ -1,0 +1,22 @@
+---
+provider: 
+- "SunLife"
+
+string_match: 
+    title_name: 
+    - "by Amount Paid" 
+    - "by Number of Claims"
+    start_page: "1"
+    match_regex: "/.*/"
+
+extracts: 
+    flavour: "stream"
+
+schema: #needs to be a dictionary
+
+fixups: 
+    StringError: "rank_din_fix.py"
+
+template_map: 
+    src: "Renewal Template Proof Zero.xlsm"
+    dst: "output.xlsm"
