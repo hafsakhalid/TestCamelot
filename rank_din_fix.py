@@ -1,7 +1,6 @@
  
 def rank_din_fix(df): 
-
-    #split the first column into 3 rows because rank, din and drug name need to be seperated
+    # #split the first column into 3 rows because rank, din and drug name need to be seperated
     #df[['Rank', 'DIN', 'Drug Name']] = df['0'].str.split('\n',expand=True)
     df[['temp', 'temp1', 'temp2']] = df['0'].str.split('\n',expand=True)
     #drop that column

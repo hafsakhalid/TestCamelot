@@ -12,10 +12,13 @@ string_match:
 extracts: 
     flavour: "stream"
 
-schema: #needs to be a dictionary
+schema_dict:
+    num_cols: 7
+    checks: 
+        StringError : "contains_new_line"
 
-fixups: 
-    StringError: "rank_din_fix.py"
+fix_ups: 
+    StringError: "rank_din_fix"
 
 template_map: 
     src: "Renewal Template Proof Zero.xlsm"
