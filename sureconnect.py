@@ -102,7 +102,10 @@ def apply_schema(schema=create_schema(), tableList=tables, config=config):
 
 return_tables = apply_schema()
 final_df = pd.DataFrame()
-final_df = pd.concat([df for df in return_tables], ignore_index=True)
+
+#output the correct table with fix_ups but very overfitted to page2 of the pdf
+final_df = pd.concat([df for df in return_tables])
+
 
 # Writing to a template
 # template should the argument but it does not accept a variable, so ask Alex
