@@ -18,8 +18,7 @@ import pandera as pa
 import camelot
 import pandas as pd
 from openpyxl import load_workbook
-# import yaml
-
+import yaml
 import rank_din_fix
 
 #logging.basicConfig(format="%(message)s", level=logging.INFO)
@@ -36,14 +35,13 @@ page_number = sys.argv[3]
 # # Fourth parameter is the template to populate.
 template_file = sys.argv[4]
 
-# TODO: loading config file w yaml
-import config
-# config  = sys.argv[1]
-# config = yaml.safe_load(open(config_filename))
-# print(config.string_match["title_name"])
+#loading config file w yaml
+config  = sys.argv[1]
+config = yaml.safe_load(open(config_filename))
+
 
 # Get all of the tables in the PDF on the indicated page.
-tables = camelot.read_pdf( pdf_file, pages=page_number, flavor=config.extracts['flavour'])
+tables = camelot.read_pdf( pdf_file, pages=page_number, flavor=config['extracts']['flavour'])
 
 # Standardize columns for stitching, by changing the column headers to string,
 # so even before getting the first table, each column name is a string
