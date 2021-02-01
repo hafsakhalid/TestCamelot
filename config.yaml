@@ -14,9 +14,11 @@ tables:
         num_cols: 9
         checks: 
             StringError : "contains_new_line"
+            column_in_dataframe: "pass"
 
     fix_ups: 
         StringError: "rank_din_fix"
+        column_in_dataframe: "no_fix"
 
     template_map: 
         src: "Renewal Template Proof Zero.xlsm"

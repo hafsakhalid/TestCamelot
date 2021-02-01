@@ -13,7 +13,6 @@ import doctest
 from sys import argv
 import logging
 
-from pandera.typing import Series
 import pandera as pa
 import camelot
 import pandas as pd
@@ -51,53 +50,61 @@ def create_schema(config):
 #TO:DO The column number for both the pages are different, so error
 def apply_schema(schema, tableList, config):
     return_tables = []
+    #for table in tableList:
+    # We have a list of fixable errors and we try each of them once
+    # if the current table needs them.
+    conditions = {error_fixable : True for error_fixable in config['fix_ups']}
+    #got rid of the for loop ()
     for table in tableList:
-        # We have a list of fixable errors and we try each of them once
-        # if the current table needs them.
-        conditions = {error_fixable : True for error_fixable in config['fix_ups']}
         while(any(conditions.values())):
             try:
                 schema.validate(table.df, lazy=True)
-                return_tables.append(table.df)
-                return return_tables
             except pa.errors.SchemaErrors as errors:
-#            except SchemaErrors as err:
-#                err.failure_cases  # dataframe of schema errors
-#                err.data  # invalid dataframe
-                error_name = str(errors.failure_cases['check'][0])
+    #            except SchemaErrors as err:
+    #                err.failure_cases  # dataframe of schema errors
+    #                err.data  # invalid dataframe
+                error_list = []
+                for i in range(0, 10): 
+                    error_list.append(errors.failure_cases['check'][i])
+                    error_list = list(dict.fromkeys(error_list))
+                for i in error_list: 
+                    error_name = i #error name needs to change with the index of the rows 
                 if(not conditions[error_name]):
                     raise Exception ('Schema fixups failed: already tried fixup.')
                 elif(conditions[error_name]):
+                    print("Error_name", error_name, "trying fix_up", config['fix_ups'][error_name])
                     table.df = fm.fxn_map[config['fix_ups'][error_name]](table.df)
                     conditions[error_name] = False
                     try:
                         schema.validate(table.df, lazy=True)
-                        conditions[error_name] = True
+                        conditions.pop([error_name])
+                        return_tables.append(table.df)
                     except:
-                        continue
+                         continue
                 else:
-                    raise Exception ('Schema fixups failed: unexpected error.')
-
+                    raise Exception ('Schema fixups failed: unexpected error.'                
+                
+    print(return_tables)
     return return_tables
+
+sys.exit(0)
 
 
 for i, e in enumerate(configs['tables']):
     for k, config in configs['tables'][i].items():
-        # Get all of the tables in the PDF on the indicated pages.
+            # Get all of the tables in the PDF on the indicated pages.
         final_df = pd.DataFrame()
-
         tables = camelot.read_pdf(pdf_file, pages=page_numbers, flavor=config['extracts']['flavour'])
 
-        # Standardize columns for stitching, by changing the column headers to string,
-        # so even before getting the first table, each column name is a string
+            # Standardize columns for stitching, by changing the column headers to string,
+            # so even before getting the first table, each column name is a string
         for table in tables:
             table.df = table.df[4:]
             table.df.columns = table.df.columns.astype(str)
-       
+    
         schema = create_schema(config)
-        return_tables = apply_schema(schema=schema, tableList=tables, config=config)
+        return_tables = apply_schema(schema=schema, tableList=tables, config=config) #tables 
         print(return_tables)
-        sys.exit(0)
 
 #output the correct table with fix_ups but very overfitted to page2 of the pdf
 #final_df = pd.concat([df for df in return_tables])
