@@ -1,0 +1,66 @@
+---
+provider: 
+- "SunLife"
+
+drug_claims:
+
+    string_match: 
+        start_page: "1"
+        title_name: "by Number of Claims"
+
+    extracts: 
+        flavour: "stream"
+
+    schema_dict:
+        num_cols: 7
+        checks: 
+            StringError : "contains_new_line"
+
+    fix_ups: 
+        StringError: "rank_din_fix"
+
+    template_map: 
+        src: "Renewal Template Proof Zero.xlsm"
+        dst: "output.xlsm"
+
+drugs_combined:
+    start_page: "1"
+    string_match: 
+        title_name: "PayDirect and Reimbursement Drugs Combined"
+
+    extracts: 
+        flavour: "stream"
+
+    schema_dict:
+        num_cols: 7
+        checks: 
+            StringError : "contains_new_line"
+
+    fix_ups: 
+        StringError: "no_fix_up"
+
+    template_map: 
+        src: "Renewal Template Proof Zero.xlsm"
+        dst: "output.xlsm"
+
+experience_analysis:
+    string_match: 
+        start_page: "1"
+        title_name: "Extended health care experience analysis"
+
+    extracts: 
+        flavour: "stream"
+
+    schema_dict:
+        num_cols: 7
+        checks: 
+            StringError : "contains_new_line"
+            #column_in_dataframe: "no_fix_up"
+
+    fix_ups: 
+        StringError : "no_fix_up"
+        #column_in_dataframe: "no_fix_up"
+
+    template_map: 
+        src: "Renewal Template Proof Zero.xlsm"
+        dst: "output.xlsm"
