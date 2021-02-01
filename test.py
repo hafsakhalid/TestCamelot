@@ -24,8 +24,6 @@ import pandera as pa
 
 # schema = create_schema(schema_dict)
 
-
-
 import pandas as pd
 
 from pandera import Check, Column, DataFrameSchema

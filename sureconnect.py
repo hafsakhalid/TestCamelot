@@ -56,6 +56,8 @@ def create_schema(config=config):
     for cols in columns:
         schema.checks = [pa.Check(check_fn=fm.fxn_map[value], error=key) for key, value in config['schema_dict']['checks'].items()]
         schema.columns[cols] = pa.Column(pa.String)
+    
+ 
     return schema
 
 
@@ -101,15 +103,19 @@ def apply_schema(schema=create_schema(), tableList=tables, config=config):
 
 
 return_tables = apply_schema()
+print(return_tables)
+
 final_df = pd.DataFrame()
 
+sys.exit(0)
+
 #output the correct table with fix_ups but very overfitted to page2 of the pdf
-final_df = pd.concat([df for df in return_tables])
+#final_df = pd.concat([df for df in return_tables])
 
 
 # Writing to a template
 # template should the argument but it does not accept a variable, so ask Alex
-def output_template(df=final_df, template=template_file, engine="openpyxl", lib=pd.ExcelWriter): 
+def output_template(df=final_df, template=template_file, engine="openpyxl"): 
     #should import loadworkbook
     output = load_workbook (
         template, read_only=False, keep_vba=True
@@ -119,7 +125,8 @@ def output_template(df=final_df, template=template_file, engine="openpyxl", lib=
     final_df.to_excel(writer, sheet_name="Accounts", startrow=1, index=False)
     writer.save()
 
-output_template()
+#output_template()
+
 
 if __name__ == "__main__":
     import sys

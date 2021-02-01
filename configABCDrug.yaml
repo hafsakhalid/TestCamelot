@@ -10,10 +10,13 @@ string_match:
 extracts: 
     flavour: "stream"
 
-schema: #needs to be a dictionary
+schema_dict:
+    num_cols: 7
+    checks: 
+        StringError : "contains_new_line"
 
-fixups: 
-    TableShapeSchemaError: "no_fix_up"
+fix_ups: 
+    StringError: "no_fix_up"
 
 template_map: 
     src: "Renewal Template Proof Zero.xlsm"
