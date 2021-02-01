@@ -9,11 +9,12 @@ tables:
 
     extracts: 
         flavour: "stream"
+        sparse_filter: 0.75
 
     schema_dict:
         num_cols: 9
         checks: 
-            StringError : "contains_new_line"
+            StringError: "contains_new_line"
             column_in_dataframe: "pass"
 
     fix_ups: 
@@ -22,7 +23,8 @@ tables:
 
     template_map: 
         src: "Renewal Template Proof Zero.xlsm"
-        dst: "output.xlsm"
+        dst_book: "top_dins.xlsx"
+        dst_sheet: "DIN List"
 
 - drugs_combined:
     start_page: 1
@@ -31,18 +33,20 @@ tables:
 
     extracts: 
         flavour: "stream"
+        sparse_filter: 0.1
 
     schema_dict:
         num_cols: 5
         checks: 
-            StringError : "contains_new_line"
+            StringError: "contains_new_line"
 
     fix_ups: 
-        StringError: "no_fix_up"
+        StringError: "no_fix"
 
     template_map: 
         src: "Renewal Template Proof Zero.xlsm"
-        dst: "output.xlsm"
+        dst_book: "classification.xlsx"
+        dst_sheet: "Drug Claims"
 
 - experience_analysis:
     string_match: 
@@ -51,17 +55,17 @@ tables:
 
     extracts: 
         flavour: "stream"
+        sparse_filter: 0.1
 
     schema_dict:
         num_cols: 5
         checks: 
             StringError : "contains_new_line"
-            #column_in_dataframe: "no_fix_up"
 
     fix_ups: 
-        StringError : "no_fix_up"
-        #column_in_dataframe: "no_fix_up"
+        StringError : "no_fix"
 
     template_map: 
         src: "Renewal Template Proof Zero.xlsm"
-        dst: "output.xlsm"
+        dst_book: "experience.xlsx"
+        dst_sheet: "Analysis"

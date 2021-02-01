@@ -14,6 +14,8 @@ from sys import argv
 import logging
 
 import pandera as pa
+from pandera.errors import SchemaErrors
+
 import camelot
 import pandas as pd
 from openpyxl import load_workbook
@@ -29,12 +31,15 @@ config_filename = sys.argv[1]
 # # Second parameter is the current PDF we're parsing.
 pdf_file = sys.argv[2]
 
-# # Third parameter is the page of the PDF to parse.
-# # Shave the trailing comma off the passed list.
-page_numbers = (sys.argv[3])[:-1]
+# # Third parament is the name of the table from the config so we can filter the config file.
+config_table_section = sys.argv[3]
 
-# # Fourth parameter is the template to populate.
-template_file = sys.argv[4]
+# # Next parameter is the page of the PDF to parse.
+# # Shave the trailing comma off the passed list.
+page_numbers = (sys.argv[4])[:-1]
+
+# # Last parameter is the template to populate.
+template_file = sys.argv[5]
 
 #loading config file w yaml
 configs = yaml.safe_load(open(config_filename))
@@ -42,86 +47,66 @@ configs = yaml.safe_load(open(config_filename))
 def create_schema(config):
     schema = pa.DataFrameSchema()
     columns = [str(i) for i in range(0, config['schema_dict']['num_cols'])]
-    for cols in columns:
+    for col in columns:
         schema.checks = [pa.Check(check_fn=fm.fxn_map[value], error=key) for key, value in config['schema_dict']['checks'].items()]
-        schema.columns[cols] = pa.Column(pa.String)
+        schema.columns[col] = pa.Column(pa.String, name=col)
     return schema
 
-#TO:DO The column number for both the pages are different, so error
 def apply_schema(schema, tableList, config):
-    return_tables = []
-    #for table in tableList:
-    # We have a list of fixable errors and we try each of them once
-    # if the current table needs them.
-    conditions = {error_fixable : True for error_fixable in config['fix_ups']}
-    #got rid of the for loop ()
+    return_frames = []
     for table in tableList:
-        while(any(conditions.values())):
-            try:
-                schema.validate(table.df, lazy=True)
-            except pa.errors.SchemaErrors as errors:
-    #            except SchemaErrors as err:
-    #                err.failure_cases  # dataframe of schema errors
-    #                err.data  # invalid dataframe
-                error_list = []
-                for i in range(0, 10): 
-                    error_list.append(errors.failure_cases['check'][i])
-                    error_list = list(dict.fromkeys(error_list))
-                for i in error_list: 
-                    error_name = i #error name needs to change with the index of the rows 
-                if(not conditions[error_name]):
-                    raise Exception ('Schema fixups failed: already tried fixup.')
-                elif(conditions[error_name]):
-                    print("Error_name", error_name, "trying fix_up", config['fix_ups'][error_name])
-                    table.df = fm.fxn_map[config['fix_ups'][error_name]](table.df)
-                    conditions[error_name] = False
-                    try:
-                        schema.validate(table.df, lazy=True)
-                        conditions.pop([error_name])
-                        return_tables.append(table.df)
-                    except:
-                         continue
-                else:
-                    raise Exception ('Schema fixups failed: unexpected error.'                
-                
-    print(return_tables)
-    return return_tables
+        df = table.df
+        try:
+            schema.validate(df, lazy=True)
+        except SchemaErrors as errors:
+            checklist = set([check for check in errors.failure_cases['check']])
+            for item in checklist:
+                df = fm.fxn_map[config['fix_ups'][item]](df)
+        return_frames.append(df)
+    return return_frames
 
-sys.exit(0)
+def filter_rows(row, cutoff):
+    # Get the percent of the row that is populated.
+    sparseness = row.str.count('^.+$').sum() / len(row)
+    if sparseness < cutoff:
+        pass
+    else:
+        return(row)
+
+def output_template(df, template, config, engine="openpyxl"):
+    df.to_excel(config['template_map']['dst_book'], sheet_name=config['template_map']['dst_sheet'])
+    #output = load_workbook (
+    #    template, read_only=False, keep_vba=True
+    #)
+    #writer = pd.ExcelWriter(config['template_map']['dst_book'], engine=engine)
+    #writer.book = output
+    #df.to_excel(writer, sheet_name=config['template_map']['dst_sheet'], startrow=0, index=False, header=False)
+    #writer.save()
 
 
 for i, e in enumerate(configs['tables']):
     for k, config in configs['tables'][i].items():
-            # Get all of the tables in the PDF on the indicated pages.
-        final_df = pd.DataFrame()
+        if (config['string_match']['title_name'] != config_table_section):
+            continue
+        # Get all of the tables in the PDF on the indicated pages.
         tables = camelot.read_pdf(pdf_file, pages=page_numbers, flavor=config['extracts']['flavour'])
+        sparse_filter = config['extracts']['sparse_filter']
 
-            # Standardize columns for stitching, by changing the column headers to string,
-            # so even before getting the first table, each column name is a string
+        # Standardize columns for stitching, by changing the column headers to string,
+        # so even before getting the first table, each column name is a string
         for table in tables:
-            table.df = table.df[4:]
+            # Apply our config choice for filtering out sparse rows.
+            # This helps identify multi-row column headers and summary sections.
+            table.df = table.df.apply(filter_rows, axis=1, args=(sparse_filter,), result_type='broadcast').dropna()
+            columns = table.df[:1]
+            #print(columns)
+            table.df = table.df[1:].reset_index(drop=True)
             table.df.columns = table.df.columns.astype(str)
     
         schema = create_schema(config)
-        return_tables = apply_schema(schema=schema, tableList=tables, config=config) #tables 
-        print(return_tables)
-
-#output the correct table with fix_ups but very overfitted to page2 of the pdf
-#final_df = pd.concat([df for df in return_tables])
-
-# Writing to a template
-# template should the argument but it does not accept a variable, so ask Alex
-def output_template(df=final_df, template=template_file, engine="openpyxl"): 
-    #should import loadworkbook
-    output = load_workbook (
-        template, read_only=False, keep_vba=True
-    )
-    writer = pd.ExcelWriter("outfile.xlsm", engine=engine)
-    writer.book = output
-    final_df.to_excel(writer, sheet_name="Accounts", startrow=1, index=False)
-    writer.save()
-
-#output_template()
+        return_tables = apply_schema(schema=schema, tableList=tables, config=config)
+        final_df = pd.concat(return_tables, ignore_index=True)
+        output_template(final_df, template_file, config)
 
 
 if __name__ == "__main__":
