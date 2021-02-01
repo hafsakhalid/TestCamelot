@@ -1,8 +1,8 @@
 ---
-provider: 
-- "SunLife"
+provider: "Sun Life"
 
-drug_claims:
+tables:
+- drug_claims:
 
     string_match: 
         start_page: "1"
@@ -23,7 +23,7 @@ drug_claims:
         src: "Renewal Template Proof Zero.xlsm"
         dst: "output.xlsm"
 
-drugs_combined:
+- drugs_combined:
     start_page: "1"
     string_match: 
         title_name: "PayDirect and Reimbursement Drugs Combined"
@@ -43,7 +43,7 @@ drugs_combined:
         src: "Renewal Template Proof Zero.xlsm"
         dst: "output.xlsm"
 
-experience_analysis:
+- experience_analysis:
     string_match: 
         start_page: "1"
         title_name: "Extended health care experience analysis"
