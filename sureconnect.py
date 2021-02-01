@@ -13,7 +13,6 @@ import doctest
 from sys import argv
 import logging
 
-from pandera.typing import Series
 import pandera as pa
 import camelot
 import pandas as pd
@@ -31,87 +30,84 @@ config_filename = sys.argv[1]
 pdf_file = sys.argv[2]
 
 # # Third parameter is the page of the PDF to parse.
-page_number = sys.argv[3]
+# # Shave the trailing comma off the passed list.
+page_numbers = (sys.argv[3])[:-1]
 
 # # Fourth parameter is the template to populate.
 template_file = sys.argv[4]
 
 #loading config file w yaml
-config  = sys.argv[1]
-config = yaml.safe_load(open(config_filename))
+configs = yaml.safe_load(open(config_filename))
 
-
-# Get all of the tables in the PDF on the indicated page.
-tables = camelot.read_pdf( pdf_file, pages=page_number, flavor=config['extracts']['flavour'])
-
-# Standardize columns for stitching, by changing the column headers to string,
-# so even before getting the first table, each column name is a string
-for table in tables: 
-    table.df.columns = table.df.columns.astype(str)
-
-
-def create_schema(config=config):
+def create_schema(config):
     schema = pa.DataFrameSchema()
     columns = [str(i) for i in range(0, config['schema_dict']['num_cols'])]
     for cols in columns:
         schema.checks = [pa.Check(check_fn=fm.fxn_map[value], error=key) for key, value in config['schema_dict']['checks'].items()]
         schema.columns[cols] = pa.Column(pa.String)
-    
- 
     return schema
 
-
-# Then you define your schema for each pdf, this should take in a tableList 
-# def define_schema(tableList=tables):
-#     """
-#     Define a schema for each table in the PDF and see if it passes or fails 
-   
-#     """
-#     schema = pa.DataFrameSchema({
-#         '0':pa.Column(
-#             pa.String, 
-#             checks = [
-#                 pa.Check(lambda s : s.str.contains('\n') == True, error="StringError")
-#             ]),
-#         })
-
-    # Define the condtions dicitonary as True
-    
 #TO:DO The column number for both the pages are different, so error
-def apply_schema(schema=create_schema(), tableList=tables, config=config):
+def apply_schema(schema, tableList, config):
     return_tables = []
-    for table in tables:
-        # We have a list of fixable errors and we try each of them once
-        # if the current table needs them.
-        conditions = {error_fixable : True for error_fixable in config['fix_ups']}
+    #for table in tableList:
+    # We have a list of fixable errors and we try each of them once
+    # if the current table needs them.
+    conditions = {error_fixable : True for error_fixable in config['fix_ups']}
+    #got rid of the for loop ()
+    for table in tableList:
         while(any(conditions.values())):
             try:
                 schema.validate(table.df, lazy=True)
-                return return_tables
             except pa.errors.SchemaErrors as errors:
-                error_name = str(errors.failure_cases['check'][0]) 
+    #            except SchemaErrors as err:
+    #                err.failure_cases  # dataframe of schema errors
+    #                err.data  # invalid dataframe
+                error_list = []
+                for i in range(0, 10): 
+                    error_list.append(errors.failure_cases['check'][i])
+                    error_list = list(dict.fromkeys(error_list))
+                for i in error_list: 
+                    error_name = i #error name needs to change with the index of the rows 
                 if(not conditions[error_name]):
                     raise Exception ('Schema fixups failed: already tried fixup.')
-                    break
                 elif(conditions[error_name]):
-                    return_tables.append(fm.fxn_map[config['fix_ups'][error_name]](table.df))
+                    print("Error_name", error_name, "trying fix_up", config['fix_ups'][error_name])
+                    table.df = fm.fxn_map[config['fix_ups'][error_name]](table.df)
                     conditions[error_name] = False
+                    try:
+                        schema.validate(table.df, lazy=True)
+                        conditions.pop([error_name])
+                        return_tables.append(table.df)
+                    except:
+                         continue
                 else:
-                    raise Exception ('Schema fixups failed: unexpected error.')
-
-        return return_tables
-
-
-return_tables = apply_schema()
-print(return_tables)
-
-final_df = pd.DataFrame()
+                    raise Exception ('Schema fixups failed: unexpected error.'                
+                
+    print(return_tables)
+    return return_tables
 
 sys.exit(0)
 
+
+for i, e in enumerate(configs['tables']):
+    for k, config in configs['tables'][i].items():
+            # Get all of the tables in the PDF on the indicated pages.
+        final_df = pd.DataFrame()
+        tables = camelot.read_pdf(pdf_file, pages=page_numbers, flavor=config['extracts']['flavour'])
+
+            # Standardize columns for stitching, by changing the column headers to string,
+            # so even before getting the first table, each column name is a string
+        for table in tables:
+            table.df = table.df[4:]
+            table.df.columns = table.df.columns.astype(str)
+    
+        schema = create_schema(config)
+        return_tables = apply_schema(schema=schema, tableList=tables, config=config) #tables 
+        print(return_tables)
+
 #output the correct table with fix_ups but very overfitted to page2 of the pdf
 #final_df = pd.concat([df for df in return_tables])
-
 
 # Writing to a template
 # template should the argument but it does not accept a variable, so ask Alex
