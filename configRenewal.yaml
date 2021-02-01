@@ -1,0 +1,26 @@
+---
+provider: 
+- "SunLife"
+
+string_match: 
+    title_name: "Extended health care experience analysis"
+    start_page: "1"
+    match_regex: "/.*/"
+
+extracts: 
+    flavour: "stream"
+
+
+schema_dict:
+    num_cols: 7
+    checks: 
+        StringError : "contains_new_line"
+        #column_in_dataframe: "no_fix_up"
+
+fix_ups: 
+    StringError : "no_fix_up"
+    #column_in_dataframe: "no_fix_up"
+
+template_map: 
+    src: "Renewal Template Proof Zero.xlsm"
+    dst: "output.xlsm"
