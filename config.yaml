@@ -3,16 +3,15 @@ provider: "Sun Life"
 
 tables:
 - drug_claims:
-
+    start_page: 1
     string_match: 
-        start_page: "1"
         title_name: "by Number of Claims"
 
     extracts: 
         flavour: "stream"
 
     schema_dict:
-        num_cols: 7
+        num_cols: 9
         checks: 
             StringError : "contains_new_line"
 
@@ -24,15 +23,15 @@ tables:
         dst: "output.xlsm"
 
 - drugs_combined:
-    start_page: "1"
+    start_page: 1
     string_match: 
-        title_name: "PayDirect and Reimbursement Drugs Combined"
+        title_name: "Drug Claims Paid by Classification"
 
     extracts: 
         flavour: "stream"
 
     schema_dict:
-        num_cols: 7
+        num_cols: 5
         checks: 
             StringError : "contains_new_line"
 
@@ -45,14 +44,14 @@ tables:
 
 - experience_analysis:
     string_match: 
-        start_page: "1"
+        start_page: 16
         title_name: "Extended health care experience analysis"
 
     extracts: 
         flavour: "stream"
 
     schema_dict:
-        num_cols: 7
+        num_cols: 5
         checks: 
             StringError : "contains_new_line"
             #column_in_dataframe: "no_fix_up"

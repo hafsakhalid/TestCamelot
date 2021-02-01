@@ -51,22 +51,30 @@ def create_schema(config):
 #TO:DO The column number for both the pages are different, so error
 def apply_schema(schema, tableList, config):
     return_tables = []
-    for table in tables:
+    for table in tableList:
         # We have a list of fixable errors and we try each of them once
         # if the current table needs them.
         conditions = {error_fixable : True for error_fixable in config['fix_ups']}
         while(any(conditions.values())):
             try:
                 schema.validate(table.df, lazy=True)
+                return_tables.append(table.df)
                 return return_tables
             except pa.errors.SchemaErrors as errors:
-                error_name = str(errors.failure_cases['check'][0]) 
+#            except SchemaErrors as err:
+#                err.failure_cases  # dataframe of schema errors
+#                err.data  # invalid dataframe
+                error_name = str(errors.failure_cases['check'][0])
                 if(not conditions[error_name]):
                     raise Exception ('Schema fixups failed: already tried fixup.')
-                    break
                 elif(conditions[error_name]):
-                    return_tables.append(fm.fxn_map[config['fix_ups'][error_name]](table.df))
+                    table.df = fm.fxn_map[config['fix_ups'][error_name]](table.df)
                     conditions[error_name] = False
+                    try:
+                        schema.validate(table.df, lazy=True)
+                        conditions[error_name] = True
+                    except:
+                        continue
                 else:
                     raise Exception ('Schema fixups failed: unexpected error.')
 
@@ -82,13 +90,14 @@ for i, e in enumerate(configs['tables']):
 
         # Standardize columns for stitching, by changing the column headers to string,
         # so even before getting the first table, each column name is a string
-        for table in tables: 
+        for table in tables:
+            table.df = table.df[4:]
             table.df.columns = table.df.columns.astype(str)
        
-        return_tables = apply_schema(tableList=tables)
+        schema = create_schema(config)
+        return_tables = apply_schema(schema=schema, tableList=tables, config=config)
         print(return_tables)
-
-sys.exit(0)
+        sys.exit(0)
 
 #output the correct table with fix_ups but very overfitted to page2 of the pdf
 #final_df = pd.concat([df for df in return_tables])
