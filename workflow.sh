@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-cp output_template.xlsx output.xlsx
 
 CONFIG_FILE=${1}
 PDF_FILE=${2}
@@ -41,3 +40,4 @@ for TABLE_NAME in $(cat ${CONFIG_FILE} | egrep title_name | egrep -o '"(.*)"' | 
     fi
 done
 
+echo "Done!"

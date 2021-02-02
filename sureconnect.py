@@ -73,14 +73,15 @@ def filter_rows(row, cutoff):
     else:
         return(row)
 
-def output_template(df, template, config, engine="openpyxl"):
-    df.to_excel(config['template_map']['dst_book'], sheet_name=config['template_map']['dst_sheet'], index=False, header=False)
+def output_template(df, template, config, columns, engine="openpyxl"):
+    print(columns)
+    df.to_excel(config['template_map']['dst_book'], sheet_name=config['template_map']['dst_sheet'], index=False, header=False)#columns)
     output = load_workbook (
         'output.xlsx', read_only=False, keep_vba=False
     )
     writer = pd.ExcelWriter('output.xlsx', engine=engine)
     writer.book = output
-    df.to_excel(writer, sheet_name=config['template_map']['dst_sheet'], startrow=0, index=False, header=False)
+    df.to_excel(writer, sheet_name=config['template_map']['dst_sheet'], startrow=0, index=False, header=False)#columns)
     writer.save()
 
 
@@ -94,6 +95,7 @@ for i, e in enumerate(configs['tables']):
 
         # Standardize columns for stitching, by changing the column headers to string,
         # so even before getting the first table, each column name is a string
+        columns = None
         for table in tables:
             # Apply our config choice for filtering out sparse rows.
             # This helps identify multi-row column headers and summary sections.
@@ -106,7 +108,7 @@ for i, e in enumerate(configs['tables']):
         schema = create_schema(config)
         return_tables = apply_schema(schema=schema, tableList=tables, config=config)
         final_df = pd.concat(return_tables, ignore_index=True)
-        output_template(final_df, template_file, config)
+        output_template(final_df, template_file, config, columns)
 
 
 if __name__ == "__main__":
