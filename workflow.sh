@@ -35,7 +35,7 @@ for TABLE_NAME in $(cat ${CONFIG_FILE} | egrep title_name | egrep -o '"(.*)"' | 
     echo "Found on pages: ${PAGE_LIST:-None}"
     if [ ! -z ${PAGE_LIST} ]; then
         # Pass in a list of pages that match the table search string.
-        python sureconnect.py ${CONFIG_FILE} ${PDF_FILE} "${TABLE_NAME}" ${PAGE_LIST} ${TEMPLATE} 
+        python -Wignore sureconnect.py ${CONFIG_FILE} ${PDF_FILE} "${TABLE_NAME}" ${PAGE_LIST} ${TEMPLATE} 
         PAGE_LIST=""
     fi
 done
