@@ -74,14 +74,14 @@ def filter_rows(row, cutoff):
         return(row)
 
 def output_template(df, template, config, engine="openpyxl"):
-    df.to_excel(config['template_map']['dst_book'], sheet_name=config['template_map']['dst_sheet'])
-    #output = load_workbook (
-    #    template, read_only=False, keep_vba=True
-    #)
-    #writer = pd.ExcelWriter(config['template_map']['dst_book'], engine=engine)
-    #writer.book = output
-    #df.to_excel(writer, sheet_name=config['template_map']['dst_sheet'], startrow=0, index=False, header=False)
-    #writer.save()
+    df.to_excel(config['template_map']['dst_book'], sheet_name=config['template_map']['dst_sheet'], index=False, header=False)
+    output = load_workbook (
+        'output.xlsx', read_only=False, keep_vba=True
+    )
+    writer = pd.ExcelWriter('output.xlsx', engine=engine)
+    writer.book = output
+    df.to_excel(writer, sheet_name=config['template_map']['dst_sheet'], startrow=0, index=False, header=False)
+    writer.save()
 
 
 for i, e in enumerate(configs['tables']):
@@ -115,4 +115,4 @@ if __name__ == "__main__":
 
     # Return the number of doctests that fail. This gives calling scripts
     # a non-zero exit code if there are failing tests.
-    sys.exit(doctest.testmod(verbose=True)[0])
+    #sys.exit(doctest.testmod(verbose=True)[0])
