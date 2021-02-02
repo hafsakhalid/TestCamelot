@@ -52,7 +52,12 @@ def create_schema(config):
         schema.columns[col] = pa.Column(pa.String, name=col)
     return schema
 
-def apply_schema(schema, tableList, config):
+# Flatten the list of columns. Solves the din-rank conflation problem for columns.
+def fix_columns(df, columns):
+    df.columns = [item for sublist in [col.split('\n') for col in columns] for item in sublist]
+    return df
+
+def apply_schema(schema, tableList, columns, config):
     return_frames = []
     for table in tableList:
         df = table.df
@@ -62,6 +67,7 @@ def apply_schema(schema, tableList, config):
             checklist = set([check for check in errors.failure_cases['check']])
             for item in checklist:
                 df = fm.fxn_map[config['fix_ups'][item]](df)
+        df = fix_columns(df, columns)
         return_frames.append(df)
     return return_frames
 
@@ -73,15 +79,30 @@ def filter_rows(row, cutoff):
     else:
         return(row)
 
-def output_template(df, template, config, columns, engine="openpyxl"):
-    df.to_excel(config['template_map']['dst_book'], sheet_name=config['template_map']['dst_sheet'], index=False, header=False)#columns)
+def output_template(df, template, config, engine="openpyxl"):
+    df.to_excel(config['template_map']['dst_book'], sheet_name=config['template_map']['dst_sheet'], index=False, header=True)
     output = load_workbook (
         'output.xlsx', read_only=False, keep_vba=False
     )
     writer = pd.ExcelWriter('output.xlsx', engine=engine)
     writer.book = output
-    df.to_excel(writer, sheet_name=config['template_map']['dst_sheet'], startrow=0, index=False, header=False)#columns)
+    df.to_excel(writer, sheet_name=config['template_map']['dst_sheet'], startrow=0, index=False, header=True)
     writer.save()
+
+def filter_titles(row, cutoff):
+    # Get the percent of the row that is populated.
+    sparseness = row.str.count('^.+$').sum() / len(row)
+    if sparseness > cutoff:
+        pass
+    else:
+        return(row)
+
+
+def fix_column_frame(col_df, sparse_filter):
+    df = col_df.apply(filter_titles, axis=1, args=(sparse_filter,), result_type='broadcast').dropna()
+    df = col_df[:len(df) + 1]
+    df = df.apply(lambda x: x.astype(str).str.cat())
+    return df.tolist()
 
 
 for i, e in enumerate(configs['tables']):
@@ -98,16 +119,16 @@ for i, e in enumerate(configs['tables']):
         for table in tables:
             # Apply our config choice for filtering out sparse rows.
             # This helps identify multi-row column headers and summary sections.
+            columns = fix_column_frame(table.df[:10], sparse_filter)
             table.df = table.df.apply(filter_rows, axis=1, args=(sparse_filter,), result_type='broadcast').dropna()
-            columns = table.df[:1]
-            #print(columns)
+            #columns = (table.df[:1].iloc[0]).tolist()
             table.df = table.df[1:].reset_index(drop=True)
             table.df.columns = table.df.columns.astype(str)
     
         schema = create_schema(config)
-        return_tables = apply_schema(schema=schema, tableList=tables, config=config)
+        return_tables = apply_schema(schema=schema, tableList=tables, columns=columns, config=config)
         final_df = pd.concat(return_tables, ignore_index=True)
-        output_template(final_df, template_file, config, columns)
+        output_template(final_df, template_file, config)
 
 
 if __name__ == "__main__":
