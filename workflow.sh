@@ -39,5 +39,3 @@ for TABLE_NAME in $(cat ${CONFIG_FILE} | egrep title_name | egrep -o '"(.*)"' | 
         PAGE_LIST=""
     fi
 done
-
-echo "Done!"
