@@ -101,7 +101,7 @@ def filter_titles(row, cutoff):
 def fix_column_frame(col_df, sparse_filter):
     df = col_df.apply(filter_titles, axis=1, args=(sparse_filter,), result_type='broadcast').dropna()
     df = col_df[:len(df) + 1]
-    df = df.apply(lambda x: x.astype(str).str.cat())
+    df = df.apply(lambda x: x.astype(str).str.cat(sep=' '))
     return df.tolist()
 
 
