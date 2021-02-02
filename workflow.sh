@@ -13,13 +13,17 @@ IFS=$'\n'
 
 # Grab all of the table search strings from the config file.
 for TABLE_NAME in $(cat ${CONFIG_FILE} | egrep title_name | egrep -o '"(.*)"' | sed -n 's/^"\(.*\).*"$/\1/p'); do
-    START_PAGE=$(cat ${CONFIG_FILE} | grep -A1 ${TABLE_NAME} | grep start | egrep -o '([0-9]*)$')
+    START_PAGE=$(cat ${CONFIG_FILE} | grep -A1 ${TABLE_NAME} | grep start_page | egrep -o '([0-9]*)$')
+    END_PAGE=$(cat ${CONFIG_FILE} | grep -A2 ${TABLE_NAME} | grep end_page | egrep -o '([0-9]*)$')
 
     echo "Search string: $TABLE_NAME"
     PAGE_LIST=""
 
     # For every page in the PDF, find if it matches the table search string.
-    for i in $(seq ${START_PAGE} ${PAGE_COUNT}); do
+    #for i in $(seq ${START_PAGE} ${PAGE_COUNT}); do
+    for i in $(seq ${START_PAGE} ${END_PAGE}); do
+        echo "Scanning page ${i}"
+
         # TODO: Only want to run pdf2txt once per page per job.
         PDF_LINES=$(pdf2txt.py -p ${i} "${PDF_FILE}")
 

@@ -76,7 +76,7 @@ def filter_rows(row, cutoff):
 def output_template(df, template, config, engine="openpyxl"):
     df.to_excel(config['template_map']['dst_book'], sheet_name=config['template_map']['dst_sheet'], index=False, header=False)
     output = load_workbook (
-        'output.xlsx', read_only=False, keep_vba=True
+        'output.xlsx', read_only=False, keep_vba=False
     )
     writer = pd.ExcelWriter('output.xlsx', engine=engine)
     writer.book = output

@@ -5,7 +5,8 @@ tables:
 - drug_claims:
     string_match: 
         title_name: "by Number of Claims"
-        start_page: 1
+        start_page: 3
+        end_page: 4
 
     extracts: 
         flavour: "stream"
@@ -30,6 +31,7 @@ tables:
     string_match: 
         title_name: "Drug Claims Paid by Classification"
         start_page: 1
+        end_page: 1
 
     extracts: 
         flavour: "stream"
@@ -52,6 +54,7 @@ tables:
     string_match: 
         title_name: "Extended health care experience analysis"
         start_page: 16
+        end_page: 17
 
     extracts: 
         flavour: "stream"
